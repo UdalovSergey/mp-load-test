@@ -68,7 +68,7 @@ public class App {
         List<PriceDTO> priceDTOs = PriceGenerator
                 .of(getArticles(), 10)
                 .generate();
-        List<List<PriceDTO>> batches = getBatch(priceDTOs, 3);
+        List<List<PriceDTO>> batches = getBatch(priceDTOs, 4);
 
         try (Producer<String, PriceDTO> producer = ProducerCreator.createPriceProducer()) {
             for (List<PriceDTO> batch: batches) {
