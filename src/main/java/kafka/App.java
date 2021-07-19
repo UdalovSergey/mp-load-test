@@ -15,9 +15,9 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 
 public class App {
-    public static void main(String[] args) {
-        runProduceProduct();
-        //runProducePrice();
+    public static void main(String[] args) throws InterruptedException {
+        //runProduceProduct();
+        runProducePrice();
     }
 
     static void runConsumer() {

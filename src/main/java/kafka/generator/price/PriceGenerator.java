@@ -21,8 +21,8 @@ public class PriceGenerator {
 
     public List<PriceDTO> generate() {
         List<PriceDTO> result = new ArrayList<>();
-        for (int i = 0; i < skuArticles.size(); i++) {
-            for (int j = 0; j < numberOfRecordsForEachArticle; j++) {
+        for (int j = 0; j < numberOfRecordsForEachArticle; j++) {
+            for (int i = 0; i < skuArticles.size(); i++) {
                 result.add(generate(skuArticles.get(i)));
             }
         }
