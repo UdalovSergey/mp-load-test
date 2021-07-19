@@ -10,6 +10,10 @@ import org.apache.kafka.clients.producer.*;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
+
 public class App {
     public static void main(String[] args) {
         runProduceProduct();
@@ -60,20 +64,36 @@ public class App {
         System.out.println("Records has been sent: " + productDTOs.size());
     }
 
-    static void runProducePrice() {
+    static void runProducePrice() throws InterruptedException {
         List<PriceDTO> priceDTOs = PriceGenerator
                 .of(getArticles(), 10)
                 .generate();
-
+        List<List<PriceDTO>> batches = getBatch(priceDTOs, 3);
 
         try (Producer<String, PriceDTO> producer = ProducerCreator.createPriceProducer()) {
-            for (PriceDTO dto : priceDTOs) {
-                final ProducerRecord<String, PriceDTO> record = new ProducerRecord<>(KafkaConstants.PRICE_TOPIC_NAME,
-                        UUID.randomUUID().toString(), dto);
-                producer.send(record);
+            for (List<PriceDTO> batch: batches) {
+                for (PriceDTO dto : batch) {
+                    final ProducerRecord<String, PriceDTO> record = new ProducerRecord<>(KafkaConstants.PRICE_TOPIC_NAME,
+                            UUID.randomUUID().toString(), dto);
+                    producer.send(record);
+                }
+                Thread.sleep(15000); // 15 sec
             }
         }
         System.out.println("Records has been sent: " + priceDTOs.size());
+    }
+
+    private static List<List<PriceDTO>> getBatch(List<PriceDTO> priceDTOS, int batchSize) {
+        return range(0, priceDTOS.size())
+                .boxed()
+                .collect(groupingBy(index -> index / batchSize))
+                .values()
+                .stream()
+                .map(indices -> indices
+                        .stream()
+                        .map(priceDTOS::get)
+                        .collect(toList()))
+                .collect(toList());
     }
 
     private static List<String> getArticles() {
